@@ -4,6 +4,15 @@ import { PageHome } from './pages/home/PageHome';
 import { PageCarListing } from './pages/auto/PageCarListing';
 import { PageCarListingInner } from './pages/auto/PageCarListingInner';
 import { PageAbout } from './pages/about/PageAbout';
+import { PageRegister } from './pages/auth/PageRegister';
+import { PageLogin } from './pages/auth/Page.Login';
+import { PageDashboard } from './pages/dashboard/PageDashboard';
+import { PageMyAutoList } from './pages/my-auto-list/PageMyAutoList';
+import { PageMyAutoView } from './pages/my-auto-list/PageMyAutoView';
+import { PageMyAutoEdit } from './pages/my-auto-list/PageMyAutoEdit';
+import { PageMyAutoCreate } from './pages/my-auto-list/PageMyAutoCreate';
+import { PageMyAutoDelete } from './pages/my-auto-list/PageMyAutoDelete';
+import { PageAccountSettings } from './pages/settings/PageAccountSettings';
 
 function App() {
   return (
@@ -17,19 +26,18 @@ function App() {
           </Route>
 
           <Route Component={BasicLayout}>
-            <Route path='/register' element={<></>}/>
-            <Route path='/login' element={<></>}/>
+            <Route path='/register' element={<PageRegister/>}/>
+            <Route path='/login' element={<PageLogin/>}/>
           </Route>
 
           <Route Component={BasicLayout}>
-            <Route path='/account' element={<></>}/>
-            <Route path='/account/my-auto-list' element={<></>}/>
-            <Route path='/account/my-auto-list/create' element={<></>}/>
-            <Route path='/account/my-auto-list/view' element={<></>}/>
-            <Route path='/account/my-auto-list/edit' element={<></>}/>
-            <Route path='/account/my-auto-list/delete' element={<></>}/>
-            <Route path='/account/settings' element={<></>}/>
-            <Route path='/dashboard' element={<></>}/>
+            <Route path='/account' element={<PageDashboard/>}/>
+            <Route path='/account/my-auto-list' element={<PageMyAutoList/>}/>
+            <Route path='/account/my-auto-list/create' element={<PageMyAutoCreate/>}/>
+            <Route path='/account/my-auto-list/view' element={<PageMyAutoView/>}/>
+            <Route path='/account/my-auto-list/edit' element={<PageMyAutoEdit/>}/>
+            <Route path='/account/my-auto-list/delete' element={<PageMyAutoDelete/>}/>
+            <Route path='/account/settings' element={<PageAccountSettings/>}/>
           </Route>
 
           <Route Component={BasicLayout}>
@@ -40,4 +48,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
