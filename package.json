@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "npm-run-all --parallel server:dev client:dev",
+    "server:dev": "npm --prefix ./server/ run dev",
+    "client:dev": "npm --prefix ./client/ run dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "Dovydas",
   "license": "MIT",
   "dependencies": {
-    "npm-run-all": "^4.1.5",
-    "react-router-dom": "^6.22.3"
+    "npm-run-all": "^4.1.5"
   }
 }
