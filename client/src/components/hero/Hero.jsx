@@ -1,4 +1,4 @@
-import heroImg from '../../assets/image/bootstrap-themes.png';
+import heroImg from '../../assets/bootstrap-themes.png';
 
 export function Hero() {
     return (

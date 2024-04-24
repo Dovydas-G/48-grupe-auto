@@ -2,11 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import bodyParser from 'body-parser';
+import { connection } from './db.js';
+import { apiRouter } from './api/api.js';
 
 const app = express();
 
 const corsOptions = {
-    origin: 'http://localhost:4820'
+    origin: 'http://localhost:4820',
 };
 const helmetOptions = {
     crossOriginResourcePolicy: false
@@ -16,58 +18,9 @@ app.use(cors(corsOptions));
 app.use(helmet(helmetOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
-const users = [];
-
-app.post('/api/register', (req, res) => {
-    let isUniqueUserEmail = true;
-
-    for (const user of users) {
-        if (user.email === req.body.email) {
-            isUniqueUserEmail = false;
-            break;
-        }
-    }
-
-    if (isUniqueUserEmail) {
-        users.push(req.body);
-        console.log(users);
-
-        return res.send(JSON.stringify({
-            message: 'User successfully registered'
-        }));
-    }
-
-    return res.send(JSON.stringify({
-        message: 'User already exists'
-    }));
-});
-
-app.post('/api/login', (req, res) => {
-    console.log('LOGIN:', req.body);
-
-    let userExists = false;
-
-    for (const user of users) {
-        if (user.email === req.body.email &&
-            user.password === req.body.password) {
-            userExists = true;
-            break;
-        }
-    }
-
-    if (userExists) {
-        return res.send(JSON.stringify({
-            message: 'User successfully logged in',
-            loggedIn: true,
-        }));
-    }
-
-    return res.send(JSON.stringify({
-        message: 'Such user does not exist',
-        loggedIn: false,
-    }));
-});
+app.use('/api', apiRouter);
 
 app.get('*', (req, res) => {
     console.log('404');

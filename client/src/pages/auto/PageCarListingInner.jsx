@@ -1,9 +1,26 @@
-import { Link } from 'react-router-dom';
-import carImg from '../../assets/cars/1.jpg';
+import { Link, useParams } from 'react-router-dom';
 import { NewestCarsList } from '../../components/auto-list/NewestCarsList';
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '../../context/GlobalContext';
 
 export function PageCarListingInner() {
-    const isUserLoggedIn = false;
+    const { loginStatus } = useContext(GlobalContext);
+    const [car, setCar] = useState(null);
+    const { carId } = useParams();
+
+    useEffect(() => {
+        fetch('http://localhost:4821/api/car/' + carId)
+            .then(res => res.json())
+            .then(data => {
+                if (data.cars.length !== 1) {
+                    return;
+                }
+
+                setCar(data.cars[0]);
+            })
+            .catch(console.error);
+    }, []);
+
     const guestActions = (
         <div className="d-grid gap-2 d-md-flex justify-content-md-start">
             <Link to="/login" className="btn btn-primary btn-lg px-4 me-md-2">Login</Link>
@@ -16,15 +33,32 @@ export function PageCarListingInner() {
         </div>
     );
 
+    if (car === null) {
+        return (
+            <>
+                <section className="container px-4">
+                    <div className="row align-items-center g-5 py-5">
+                        <div className="col-lg-6">
+                            <h1 className="display-5 fw-bold text-body-emphasis lh-1 mb-3">Could not find such car for sale</h1>
+                        </div>
+                    </div>
+                </section>
+                <NewestCarsList />
+            </>
+        );
+    }
+
     return (
         <>
             <section className="container px-4">
                 <div className="row flex-lg-row-reverse align-items-center g-5 py-5">
                     <div className="col-10 col-sm-8 col-lg-6">
-                        <img src={carImg} className="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" loading="lazy" />
+                        <img src={car.img} className="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" loading="lazy" />
                     </div>
                     <div className="col-lg-6">
-                        <h1 className="display-5 fw-bold text-body-emphasis lh-1 mb-3">Automobilio pavadinimas</h1>
+                        <h1 className="display-5 fw-bold text-body-emphasis lh-1 mb-3">{car.name}</h1>
+                        <p>Price: {car.price} Eur</p>
+                        <p>User ID: {car.userId}</p>
                         <p className="lead">Quickly design and customize responsive mobile-first sites with Bootstrap, the world’s most popular front-end open source toolkit, featuring Sass variables and mixins, responsive grid system, extensive prebuilt components, and powerful JavaScript plugins.</p>
                         <ul>
                             <li>Detail</li>
@@ -34,11 +68,11 @@ export function PageCarListingInner() {
                             <li>Detail</li>
                             <li>Detail</li>
                         </ul>
-                        {isUserLoggedIn ? userActions : guestActions}
+                        {loginStatus ? userActions : guestActions}
                     </div>
                 </div>
             </section>
             <NewestCarsList />
         </>
-    )
+    );
 }
