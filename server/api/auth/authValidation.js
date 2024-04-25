@@ -70,13 +70,17 @@ function isValidEmail(text) {
         parts = text.split('@');
     }
 
-    const recipientName = parts[0];
+    const recipientName = parts[0].length < domainPartsMinLength ? '' : parts[0];
     const domainNameParts = parts[1] < domainPartsMinLength ? '' : parts[1].split('.');
     const domain = domainNameParts.length < domainPartsMinLength ? '' : domainNameParts[domainNameParts.length -1];
     const domainName = parts[1].slice(0, -(domain.length +1)).length < 1 ? '' : parts[1].slice(0, -(domain.length +1));
 
     if (domainNameParts.length === 0) {
         return 'Incomplete email mail adress.'
+    }
+
+    if (recipientName.length === 0) {
+        return 'Missing recipient name.'
     }
 
     if (domainName.length === 0) {
