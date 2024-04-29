@@ -1,13 +1,13 @@
 import { charObj } from "../../data/validationData.js"; 
 import { alphabetLtObj } from "../../data/validationData.js"; 
 
-function isValidUsername(text) {
+function isValidName(text) {
 
     if (text.length < 1) {
         return 'The name is too short.';
     }
 
-    if (text.length > 20) {
+    if (text.length > 30) {
         return 'The name is too long.';
     }
 
@@ -25,6 +25,8 @@ function isValidUsername(text) {
         } else if (symbolAtCharCode >= charObj.alphabetUpperCaseBeginning && symbolAtCharCode <= charObj.alphabetUpperCaseEnd) {
             valid;
         } else if (letterLt) {
+            valid;
+        } else if (text[i] >= '0' && text[i] <= '9') {
             valid;
         } else invalidSymbols += text[i];
     }
@@ -245,4 +247,4 @@ function isValidPassword(text) {
 
 
 
-export {isValidUsername, isValidEmail, isValidPassword};
+export {isValidName, isValidEmail, isValidPassword};

@@ -6,9 +6,17 @@ export function PageCarListing() {
     const { allCars, updateAllCars } = useContext(GlobalContext);
 
     useEffect(() => {
-        fetch('http://localhost:4821/api/all-cars')
+        fetch('http://localhost:4821/api/cars/all')
             .then(res => res.json())
-            .then(data => updateAllCars(data.list))
+            .then(data => {
+                if (data.type === 'success') {
+                    updateAllCars(data.list);
+                }
+
+                if (data.type === 'error') {
+                    console.error(data.message);
+                }
+            })
             .catch(console.error);
     }, []);
 

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import style from './AutoList.module.css';
 
 export function AutoCard({ data }) {
-    console.log(data);
     const { id, name, img, price } = data;
 
     return (
@@ -14,7 +13,7 @@ export function AutoCard({ data }) {
                     <Link to={`/auto-list/${id}`}>
                         <h3>{name}</h3>
                     </Link>
-                    <p className="card-text">Price: {price} Eur</p>
+                    <p className="card-text">Price: {(price / 100).toFixed(2)} Eur</p>
                     <div className="d-flex justify-content-between align-items-center">
                         <div className="btn-group">
                             <Link to={`/auto-list/${id}`} className="btn btn-sm btn-outline-secondary">Read more</Link>

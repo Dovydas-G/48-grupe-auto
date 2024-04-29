@@ -9,14 +9,14 @@ export function PageCarListingInner() {
     const { carId } = useParams();
 
     useEffect(() => {
-        fetch('http://localhost:4821/api/car/' + carId)
+        fetch('http://localhost:4821/api/cars/' + carId)
             .then(res => res.json())
             .then(data => {
-                if (data.cars.length !== 1) {
-                    return;
+                if (data.type === 'error') {
+                    console.error(data);
+                } else {
+                    setCar(data.car);
                 }
-
-                setCar(data.cars[0]);
             })
             .catch(console.error);
     }, []);
@@ -57,7 +57,7 @@ export function PageCarListingInner() {
                     </div>
                     <div className="col-lg-6">
                         <h1 className="display-5 fw-bold text-body-emphasis lh-1 mb-3">{car.name}</h1>
-                        <p>Price: {car.price} Eur</p>
+                        <p>Price: {(car.price / 100).toFixed(2)} Eur</p>
                         <p>User ID: {car.userId}</p>
                         <p className="lead">Quickly design and customize responsive mobile-first sites with Bootstrap, the world’s most popular front-end open source toolkit, featuring Sass variables and mixins, responsive grid system, extensive prebuilt components, and powerful JavaScript plugins.</p>
                         <ul>

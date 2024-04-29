@@ -37,9 +37,15 @@ export function ContextWrapper(props) {
                 .then(dataObj => setCartData(dataObj.data))
                 .catch(console.error);
 
-            fetch('http://localhost:4821/api/my-cars/' + userId)
+            fetch('http://localhost:4821/api/cars/my/' + userId)
                 .then(res => res.json())
-                .then(dataObj => setMyCars(dataObj.list))
+                .then(dataObj => {
+                    if (dataObj.type === 'success') {
+                        setMyCars(dataObj.list);
+                    }else {
+                        console.error(dataObj.message);
+                    }
+                })
                 .catch(console.error);
         }
     }, [loginStatus]);

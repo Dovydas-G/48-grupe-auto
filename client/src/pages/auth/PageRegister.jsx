@@ -28,7 +28,7 @@ export function PageRegister() {
             return;
         }
 
-        fetch('http://localhost:4821/api/register', {
+        fetch('http://localhost:4821/api/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -41,7 +41,11 @@ export function PageRegister() {
                 setResponseType(data.type);
                 setResponseText(data.message);
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.log(err);
+                setResponseType('error');
+                setResponseText('Kritine klaida bandant registruotis is kliento puses');
+            });
     }
 
     return (

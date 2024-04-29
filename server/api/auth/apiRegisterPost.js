@@ -55,13 +55,23 @@ export async function apiRegisterPost(req, res) {
         }
     } catch (error) {
         console.error(error);
+
+        return res.send(JSON.stringify({
+            type: 'error',
+            message: 'Problem while trying to register a user',
+        }));
     }
 
     try {
         const insertQuery = `INSERT INTO users (email, password) VALUES (?, ?);`;
         const dbResponse = await connection.execute(insertQuery, [email, password]);
 
-        console.log(dbResponse);
+        if (dbResponse[0].affectedRows !== 1) {
+            return res.send(JSON.stringify({
+                type: 'error',
+                message: 'User could not be created, for some weird reason',
+            }));
+        }
 
         return res.send(JSON.stringify({
             type: 'success',
@@ -69,10 +79,10 @@ export async function apiRegisterPost(req, res) {
         }));
     } catch (error) {
         console.error(error);
-    }
 
-    return res.send(JSON.stringify({
-        type: 'error',
-        message: 'Register API is broken...',
-    }));
+        return res.send(JSON.stringify({
+            type: 'error',
+            message: 'Problem while trying to register a user',
+        }));
+    }
 }
