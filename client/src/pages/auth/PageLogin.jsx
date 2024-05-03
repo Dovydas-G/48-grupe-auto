@@ -39,6 +39,7 @@ export function PageLogin() {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({ email, password }),
         })
             .then(res => res.json())

@@ -31,7 +31,21 @@ export function ContextWrapper(props) {
     const [myCars, setMyCars] = useState(initialContext.myCars);
 
     useEffect(() => {
+        fetch('http://localhost:4821/api/auth/login', {
+            method: 'GET',
+            credentials: 'include',
+        })
+            .then(res => res.json())
+            .then(data => {
+                updateLoginStatus(data.loggedIn);
+                updateUserId(data.id);
+            })
+            .catch(console.error);
+    }, []);
+
+    useEffect(() => {
         if (loginStatus === true) {
+            
             fetch('http://localhost:4821/api/cart-details')
                 .then(res => res.json())
                 .then(dataObj => setCartData(dataObj.data))
@@ -48,8 +62,9 @@ export function ContextWrapper(props) {
                 })
                 .catch(console.error);
         }
-    }, [loginStatus]);
+    }, [loginStatus, userId]);
 
+    
     function updateLoginStatus(newStatusValue) {
         setLoginStatus(newStatusValue);
     }
