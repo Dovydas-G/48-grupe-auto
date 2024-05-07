@@ -35,7 +35,7 @@ function App() {
             <Route path='/account' element={<PageDashboard />} />
             <Route path='/account/my-auto-list' element={<PageMyAutoList />} />
             <Route path='/account/my-auto-list/create' element={<PageMyAutoCreate />} />
-            <Route path='/account/my-auto-list/edit' element={<PageMyAutoEdit />} />
+            <Route path='/account/my-auto-list/:carId/edit' element={<PageMyAutoEdit />} />
             <Route path='/account/settings' element={<PageAccountSettings />} />
           </Route>
 

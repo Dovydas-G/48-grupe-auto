@@ -47,10 +47,8 @@ carsRouter.get('/newest', async (req, res) => {
 });
 
 carsRouter.post('/create', async (req, res) => {
-    const { userId, name, price } = req.body;
-    const img = 'http://localhost:4821/img/cars/7.jpg';
-    console.log(price)
-
+    const { userId, name, price, image} = req.body;
+    
     if (name !== isValidName(name)) {
         return res.send(JSON.stringify({
             type: 'error',
@@ -74,7 +72,7 @@ carsRouter.post('/create', async (req, res) => {
 
     try {
         const insertQuery = `INSERT INTO cars (userId, name, img, price) VALUES (?, ?, ?, ?);`;
-        const dbResponse = await connection.execute(insertQuery, [userId, name, img, price * 100]);
+        const dbResponse = await connection.execute(insertQuery, [userId, name, image, price * 100]);
 
         if (dbResponse[0].affectedRows === 0) {
             return res.send(JSON.stringify({
@@ -91,7 +89,7 @@ carsRouter.post('/create', async (req, res) => {
                     id: dbResponse[0].insertId,
                     name,
                     price,
-                    img: '',
+                    img: image,
                 },
             }));
         }

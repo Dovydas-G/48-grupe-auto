@@ -1,6 +1,7 @@
 import { connection } from "../../db.js";
 import { randomstring } from "../../lib/randomString.js";
 import { isValidEmail, isValidPassword } from "./authValidation.js";
+import { hash } from "../../lib/hash.js";
 
 export async function apiLoginPost(req, res) {
     const minEmailLength = 6;
@@ -70,7 +71,7 @@ export async function apiLoginPost(req, res) {
 
     try {
         const selectQuery = `SELECT * FROM users WHERE email = ? AND password = ?;`;
-        const dbResponse = await connection.execute(selectQuery, [email, password]);
+        const dbResponse = await connection.execute(selectQuery, [email, hash(password)]);
 
         if (dbResponse[0].length === 0) {
             return res.send(JSON.stringify({
