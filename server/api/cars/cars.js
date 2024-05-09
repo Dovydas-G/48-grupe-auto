@@ -1,25 +1,23 @@
 import express from 'express';
 import { connection } from '../../db.js';
-import { isValidName } from '../auth/authValidation.js';
 
 const carsRouter = express.Router();
 
 carsRouter.get('/all', async (req, res) => {
     try {
-        const selectQuery = `SELECT * FROM  cars;`;
+        const selectQuery = `SELECT * FROM cars;`;
         const dbResponse = await connection.execute(selectQuery);
 
         return res.send(JSON.stringify({
             type: 'success',
             list: dbResponse[0],
         }));
-
     } catch (error) {
         console.error(error);
 
         return res.send(JSON.stringify({
             type: 'error',
-            message: 'Critical error while trying to create a "car for sale"',
+            message: 'Critical error while trying to get all cars for sale',
         }));
     }
 });
@@ -35,49 +33,91 @@ carsRouter.get('/newest', async (req, res) => {
             type: 'success',
             list: dbResponse[0],
         }));
-
     } catch (error) {
         console.error(error);
 
         return res.send(JSON.stringify({
             type: 'error',
-            message: 'Critical error while trying to create a "car for sale"',
+            message: 'Critical error while trying to get all cars for sale',
+        }));
+    }
+});
+
+carsRouter.get('/:carId', async (req, res, next) => {
+    const { carId } = req.params;
+
+    if (carId === 'my') {
+        return next();
+    }
+
+    try {
+        const selectQuery = `SELECT * FROM cars WHERE id = ?;`;
+        const dbResponse = await connection.execute(selectQuery, [carId]);
+
+        if (dbResponse[0].length === 0) {
+            return res.send(JSON.stringify({
+                type: 'error',
+                message: 'Such car does not exist',
+            }));
+        }
+
+        return res.send(JSON.stringify({
+            type: 'success',
+            car: dbResponse[0][0],
+        }));
+    } catch (error) {
+        console.error(error);
+
+        return res.send(JSON.stringify({
+            type: 'error',
+            message: 'Critical error while trying to get car details',
+        }));
+    }
+});
+
+carsRouter.use((req, res, next) => {
+    if (req.user.role === 'public') {
+        return res.send(JSON.stringify({
+            type: 'error',
+            message: 'Login to use this API endpoint',
+        }));
+    }
+
+    next();
+});
+
+carsRouter.get('/my', async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const selectQuery = `SELECT * FROM cars WHERE userId = ?;`;
+        const dbResponse = await connection.execute(selectQuery, [userId]);
+
+        return res.send(JSON.stringify({
+            type: 'success',
+            list: dbResponse[0],
+        }));
+    } catch (error) {
+        console.error(error);
+
+        return res.send(JSON.stringify({
+            type: 'error',
+            message: 'Critical error while trying to get all my cars',
         }));
     }
 });
 
 carsRouter.post('/create', async (req, res) => {
-    const { userId, name, price, image} = req.body;
-    
-    if (name !== isValidName(name)) {
-        return res.send(JSON.stringify({
-            type: 'error',
-            message: isValidName(name),
-        }));
-    }
-
-    if (price <= 0 || isNaN(price)) {
-        return res.send(JSON.stringify({
-            type: 'error',
-            message: 'Please provide positive value !',
-        }));
-    }
-
-    if (('' + price).length > 7) {
-        return res.send(JSON.stringify({
-            type: 'error',
-            message: 'Please provide positive value !',
-        }));
-    }
+    const { name, price, image } = req.body;
 
     try {
         const insertQuery = `INSERT INTO cars (userId, name, img, price) VALUES (?, ?, ?, ?);`;
-        const dbResponse = await connection.execute(insertQuery, [userId, name, image, price * 100]);
+        const dbResponse = await connection.execute(insertQuery, [req.user.id, name, image, price * 100]);
 
         if (dbResponse[0].affectedRows === 0) {
             return res.send(JSON.stringify({
                 type: 'error',
-                message: 'Car could not be created, opps (dublicate found)',
+                message: 'Car could not be created, oops (dublicate found)',
             }));
         }
 
@@ -98,7 +138,6 @@ carsRouter.post('/create', async (req, res) => {
             type: 'error',
             message: 'Critical error while creating car',
         }));
-
     } catch (error) {
         console.error(error);
 
@@ -109,56 +148,65 @@ carsRouter.post('/create', async (req, res) => {
     }
 });
 
-carsRouter.get('/my/:userId', async (req, res) => {
-    const { userId } = req.params;
+carsRouter.put('/:carId', async (req, res) => {
+    const { carId } = req.params;
+    const { name, price, image } = req.body;
+    const userId = req.user.id;
 
     try {
-        const selectQuery = `SELECT * FROM cars WHERE userId = ?;`;
-        const dbResponse = await connection.execute(selectQuery, [userId]);
+        const selectQuery = `SELECT * FROM cars WHERE id = ? AND userId = ?;`;
+        const dbResponse = await connection.execute(selectQuery, [carId, userId]);
 
-        return res.send(JSON.stringify({
-            type: 'success',
-            list: dbResponse[0],
-        }));
+        if (dbResponse[0].length === 0) {
+            return res.send(JSON.stringify({
+                type: 'error',
+                message: 'Such car does not exist',
+            }));
+        }
 
+        if (dbResponse[0].length > 1) {
+            return res.send(JSON.stringify({
+                type: 'error',
+                message: 'Corrupted data, sorry',
+            }));
+        }
     } catch (error) {
         console.error(error);
 
         return res.send(JSON.stringify({
             type: 'error',
-            message: 'Critical error while trying to get all my car details"',
+            message: 'Critical error while trying to get car details',
         }));
     }
-    return res.send(JSON.stringify({
-        list: [],
-    }));
-});
-
-carsRouter.get('/:carId', async (req, res) => {
-const { carId } = req.params;
 
     try {
-        const selectQuery = `SELECT * FROM cars WHERE id = ?;`;
-        const dbResponse = await connection.execute(selectQuery, [carId]);
+        const updateQuery = `UPDATE cars SET name = ?, price = ?, img = ? WHERE id = ?;`;
+        const dbResponse = await connection.execute(updateQuery, [name, price, image, carId]);
 
-        if (dbResponse[0].length === 0) {
+        if (dbResponse.affectedRows === 0) {
             return res.send(JSON.stringify({
                 type: 'error',
-               message: 'Such car does not exist',
+                message: 'Critical error while trying to update car details',
+            }));
+        }
+
+        if (dbResponse.affectedRows > 1) {
+            return res.send(JSON.stringify({
+                type: 'error',
+                message: 'Car details updated, but with some unexpected side effects',
             }));
         }
 
         return res.send(JSON.stringify({
             type: 'success',
-            car: dbResponse[0][0],
+            message: 'Car details updated',
         }));
-
     } catch (error) {
         console.error(error);
 
         return res.send(JSON.stringify({
             type: 'error',
-            message: 'Critical error while trying to get car details"',
+            message: 'Critical error while trying to update car details',
         }));
     }
 });
@@ -170,9 +218,11 @@ carsRouter.delete('/:carId', async (req, res) => {
         const deleteQuery = `DELETE FROM cars WHERE id = ?;`;
         const dbResponse = await connection.execute(deleteQuery, [carId]);
 
+        console.log(dbResponse);
+
         if (dbResponse[0].affectedRows === 0) {
             return res.send(JSON.stringify({
-                type: 'error',
+                type: 'success',
                 message: 'Could not delete car, because it does not exist',
             }));
         }
@@ -181,13 +231,12 @@ carsRouter.delete('/:carId', async (req, res) => {
             type: 'success',
             message: 'Auto deleted',
         }));
-
     } catch (error) {
         console.error(error);
 
         return res.send(JSON.stringify({
             type: 'error',
-            message: 'Critical error while trying to get car details"',
+            message: 'Critical error while trying to delete car',
         }));
     }
 });

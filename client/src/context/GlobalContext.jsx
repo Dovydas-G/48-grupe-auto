@@ -17,6 +17,7 @@ export const initialContext = {
     updateAllCars: () => { },
     myCars: [],
     updateMyCars: () => { },
+    updateMyCar: () => { },
 };
 
 export const GlobalContext = createContext(initialContext);
@@ -37,34 +38,36 @@ export function ContextWrapper(props) {
         })
             .then(res => res.json())
             .then(data => {
-                updateLoginStatus(data.loggedIn);
-                updateUserId(data.id);
+                if (data.type === 'success') {
+                    setUserId(data.user.id);
+                    setLoginStatus(true);
+                }
             })
             .catch(console.error);
     }, []);
 
     useEffect(() => {
         if (loginStatus === true) {
-            
             fetch('http://localhost:4821/api/cart-details')
                 .then(res => res.json())
                 .then(dataObj => setCartData(dataObj.data))
                 .catch(console.error);
 
-            fetch('http://localhost:4821/api/cars/my/' + userId)
+            fetch('http://localhost:4821/api/cars/my', {
+                credentials: 'include',
+            })
                 .then(res => res.json())
                 .then(dataObj => {
                     if (dataObj.type === 'success') {
                         setMyCars(dataObj.list);
-                    }else {
+                    } else {
                         console.error(dataObj.message);
                     }
                 })
                 .catch(console.error);
         }
-    }, [loginStatus, userId]);
+    }, [loginStatus]);
 
-    
     function updateLoginStatus(newStatusValue) {
         setLoginStatus(newStatusValue);
     }
@@ -87,6 +90,22 @@ export function ContextWrapper(props) {
 
     function updateMyCars(list) {
         setMyCars(list);
+    }
+
+    function updateMyCar(car) {
+        setMyCars(prev => {
+            const updatedList = [];
+
+            for (const item of prev) {
+                if (item.id !== car.id) {
+                    updatedList.push(item);
+                } else {
+                    updatedList.push(car);
+                }
+            }
+
+            return updatedList;
+        });
     }
 
     function addMyNewCar(car) {
@@ -116,6 +135,7 @@ export function ContextWrapper(props) {
         updateAllCars,
         myCars,
         updateMyCars,
+        updateMyCar,
         addMyNewCar,
         deleteMyCar,
     };

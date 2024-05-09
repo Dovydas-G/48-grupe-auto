@@ -3,6 +3,15 @@ import multer from 'multer';
 import path from 'path';
 
 export const uploadRouter = express.Router();
+uploadRouter.use((req, res, next) => {
+    if (req.user.role === 'public') {
+        return res.send(JSON.stringify({
+            type: 'error',
+            message: 'Login to use this API endpoint',
+        }));
+    }
+    next();
+});
 
 const carStorage = multer.diskStorage({
     destination: (req, file, cb) => {

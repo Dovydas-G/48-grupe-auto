@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import { apiRouter } from './api/api.js';
+import { connection } from './db.js';
 
 const app = express();
 
@@ -21,6 +22,36 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+
+app.use(async (req, res, next) => {
+    const {loginToken} = req.cookies;
+    req.user = {
+        id: -1,
+        role: 'public',
+        isBlocked: false,
+    };
+
+    if (!loginToken) {
+        return next()
+    }
+
+    try {
+        const selectQuery = 'SELECT * FROM login_token WHERE token = ?;';
+        const dbResponse = await connection.execute(selectQuery, [loginToken]);
+        
+        if (dbResponse[0].length !== 1) {
+            return next();
+        }
+        const tokenObj = dbResponse[0][0];
+        req.user.id = tokenObj.userId;
+        req.user.role = 'client';
+
+    } catch (error) {
+        console.error(error);
+    }
+
+    return next();
+});
 
 app.use('/api', apiRouter);
 
