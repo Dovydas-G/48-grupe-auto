@@ -1,4 +1,5 @@
 import { connection } from "../../db.js";
+import { LOGIN_TOKEN } from "../../env.js";
 import { randomstring } from "../../lib/randomString.js";
 import { isValidEmail, isValidPassword } from "./authValidation.js";
 import { hash } from "../../lib/hash.js";
@@ -117,7 +118,7 @@ export async function apiLoginPost(req, res) {
     }
 
     const cookie = [
-        'loginToken=' + loginToken,
+        LOGIN_TOKEN + '=' + loginToken,
         'domain=localhost',
         'path=/',
         'max-age=' + 1800,

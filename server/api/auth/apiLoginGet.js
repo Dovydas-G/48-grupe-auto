@@ -1,10 +1,11 @@
 import { connection } from "../../db.js";
+import { LOGIN_TOKEN } from "../../env.js";
 
 export async function apiLoginGet(req, res) {
     const loginTokenSize = 20;
 
-    if (typeof req.cookies.loginToken !== 'string' 
-        || req.cookies.loginToken.length !== loginTokenSize) {
+    if (typeof req.cookies[LOGIN_TOKEN] !== 'string' 
+        || req.cookies[LOGIN_TOKEN].length !== loginTokenSize) {
             return res.send(JSON.stringify({
                 type: 'error',
                 message: 'Login token is invalid',
@@ -14,7 +15,7 @@ export async function apiLoginGet(req, res) {
 
     try {
         const selectQuery = 'SELECT * FROM login_token INNER JOIN users ON login_token.userId = users.id;';
-        const dbResponse = await connection.execute(selectQuery, [req.cookies.loginToken]);
+        const dbResponse = await connection.execute(selectQuery, [req.cookies[LOGIN_TOKEN]]);
 
         if (dbResponse[0].length !== 1) {
             return res.send(JSON.stringify({
